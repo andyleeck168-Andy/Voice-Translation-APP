@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>🌍 語音翻譯助手</title>
+    <title>🎙️ 語音聽打助手</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
-            background: linear-gradient(180deg, #0d1b2a 0%, #1b263b 50%, #415a77 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+            background: linear-gradient(180deg, #0f0f23 0%, #1a1a3e 50%, #16213e 100%);
             min-height: 100vh;
             color: #fff;
             overflow-x: hidden;
@@ -19,26 +19,25 @@
         }
         .container { max-width: 480px; margin: 0 auto; padding: 12px; padding-bottom: 50px; }
         
-        /* Header */
-        .header { text-align: center; padding: 12px 0 8px; }
-        .header h1 { font-size: 26px; font-weight: 800; margin-bottom: 4px; letter-spacing: 1px; }
-        .header p { font-size: 14px; color: #90e0ef; }
+        .header { text-align: center; padding: 16px 0 10px; }
+        .header h1 { font-size: 30px; font-weight: 800; margin-bottom: 6px; letter-spacing: 2px; }
+        .header p { font-size: 15px; color: #a0c4ff; }
         
-        /* Mode Switch */
         .mode-switch {
             display: flex;
             background: rgba(255,255,255,0.08);
             border-radius: 50px;
             padding: 4px;
-            margin: 12px 0;
+            margin: 14px 0;
+            gap: 4px;
         }
         .mode-btn {
             flex: 1;
-            padding: 12px 6px;
+            padding: 14px 6px;
             border: none;
             background: transparent;
-            color: #90e0ef;
-            font-size: 15px;
+            color: #a0c4ff;
+            font-size: 17px;
             font-weight: 700;
             border-radius: 50px;
             cursor: pointer;
@@ -46,45 +45,47 @@
             -webkit-appearance: none;
         }
         .mode-btn.active {
-            background: linear-gradient(135deg, #e63946, #f4a261);
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
             color: #fff;
-            box-shadow: 0 4px 15px rgba(230,57,70,0.4);
+            box-shadow: 0 4px 15px rgba(233,69,96,0.4);
         }
         
-        /* Status */
         .status-bar {
             text-align: center;
-            padding: 8px;
-            border-radius: 10px;
-            background: rgba(0,180,216,0.15);
-            margin: 10px 0;
-            font-size: 15px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(0,180,216,0.12);
+            margin: 12px 0;
+            font-size: 16px;
             color: #90e0ef;
-            min-height: 36px;
+            min-height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
+            line-height: 1.5;
+            font-weight: 500;
         }
-        .status-bar.error { background: rgba(231,76,60,0.2); color: #ff9f9f; }
-        .status-bar.success { background: rgba(0,184,148,0.2); color: #00cec9; }
+        .status-bar.error { background: rgba(231,76,60,0.18); color: #ff9f9f; }
+        .status-bar.success { background: rgba(0,184,148,0.15); color: #00cec9; }
+        .status-bar.listening { background: rgba(233,69,96,0.2); color: #ffd166; animation: blink 1s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.6} }
         
-        /* Mic Section */
         .mic-section {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 16px 0;
+            margin: 20px 0;
         }
         .mic-btn {
-            width: 110px;
-            height: 110px;
+            width: 130px;
+            height: 130px;
             border-radius: 50%;
-            border: 4px solid rgba(230,57,70,0.3);
-            background: linear-gradient(135deg, #e63946, #d62828);
+            border: 5px solid rgba(233,69,96,0.25);
+            background: linear-gradient(135deg, #e94560, #c0392b);
             color: #fff;
-            font-size: 44px;
+            font-size: 52px;
             cursor: pointer;
-            box-shadow: 0 6px 25px rgba(230,57,70,0.5);
+            box-shadow: 0 8px 30px rgba(233,69,96,0.5);
             transition: all 0.3s;
             display: flex;
             align-items: center;
@@ -93,43 +94,103 @@
         }
         .mic-btn:active { transform: scale(0.92); }
         .mic-btn.listening {
-            animation: pulse-ring 1.5s infinite;
-            background: linear-gradient(135deg, #ff6b6b, #e63946);
+            animation: pulse-ring 1.4s infinite;
+            background: linear-gradient(135deg, #ff6b6b, #e94560);
         }
         @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0 rgba(230,57,70,0.7); }
-            70% { box-shadow: 0 0 0 25px rgba(230,57,70,0); }
-            100% { box-shadow: 0 0 0 0 rgba(230,57,70,0); }
+            0% { box-shadow: 0 0 0 0 rgba(233,69,96,0.7); }
+            70% { box-shadow: 0 0 0 30px rgba(233,69,96,0); }
+            100% { box-shadow: 0 0 0 0 rgba(233,69,96,0); }
         }
         .mic-label {
-            margin-top: 10px;
-            font-size: 16px;
+            margin-top: 14px;
+            font-size: 18px;
             font-weight: 700;
             color: #ffd166;
         }
         
-        /* Text Input Fallback */
-        .input-section {
+        .result-box {
             background: rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 24px;
+            margin: 16px 0;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        .result-label {
+            font-size: 14px;
+            color: #a0c4ff;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .result-text {
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 1.6;
+            color: #fff;
+            min-height: 50px;
+            word-break: break-word;
+        }
+        .result-text:empty::before { content: "（等待語音輸入...）"; color: rgba(255,255,255,0.3); font-size: 22px; }
+        
+        .action-btns {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
             border-radius: 16px;
-            padding: 14px;
-            margin: 12px 0;
-            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            -webkit-appearance: none;
+        }
+        .speak-btn {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0,184,148,0.3);
+        }
+        .speak-btn:active { transform: scale(0.96); }
+        .clear-btn {
+            background: rgba(255,255,255,0.1);
+            color: #a0c4ff;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .copy-btn {
+            background: rgba(100,149,237,0.2);
+            color: #6495ed;
+            border: 1px solid rgba(100,149,237,0.3);
+        }
+        
+        .input-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 14px 0;
+            border: 1px solid rgba(255,255,255,0.08);
         }
         .input-label {
-            font-size: 13px;
+            font-size: 14px;
             color: #ffd166;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 600;
         }
         .text-input {
             width: 100%;
-            padding: 14px;
-            border-radius: 12px;
+            padding: 16px;
+            border-radius: 14px;
             border: 2px solid rgba(255,255,255,0.15);
-            background: rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.25);
             color: #fff;
-            font-size: 20px;
+            font-size: 22px;
             font-family: inherit;
             outline: none;
             margin-bottom: 10px;
@@ -137,196 +198,130 @@
         }
         .text-input:focus { border-color: #00b4d8; }
         .text-input::placeholder { color: rgba(255,255,255,0.35); }
-        .translate-btn {
+        .add-btn {
             width: 100%;
             padding: 14px;
             border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #00b4d8, #0077b6);
+            border-radius: 14px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
             color: #fff;
             font-size: 18px;
             font-weight: 700;
             cursor: pointer;
             -webkit-appearance: none;
         }
-        .translate-btn:active { transform: scale(0.98); opacity: 0.9; }
+        .add-btn:active { transform: scale(0.98); opacity: 0.9; }
         
-        /* Result Boxes */
-        .result-box {
-            background: rgba(255,255,255,0.07);
-            border-radius: 16px;
-            padding: 16px;
-            margin: 10px 0;
-            border: 1px solid rgba(255,255,255,0.08);
-        }
-        .result-label {
-            font-size: 12px;
-            color: #90e0ef;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        .result-text {
-            font-size: 24px;
-            font-weight: 700;
-            line-height: 1.5;
-            color: #fff;
-            min-height: 36px;
-            word-break: break-word;
-        }
-        .result-text.highlight {
-            color: #00f5d4;
-            font-size: 28px;
-            text-shadow: 0 0 20px rgba(0,245,212,0.3);
-        }
-        
-        /* Action Buttons */
-        .action-btns {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-        }
-        .action-btn {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 14px;
-            font-size: 17px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            -webkit-appearance: none;
-        }
-        .speak-btn {
-            background: linear-gradient(135deg, #06d6a0, #118ab2);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(6,214,160,0.3);
-        }
-        .speak-btn:active { transform: scale(0.96); }
-        .clear-btn {
-            background: rgba(255,255,255,0.1);
-            color: #90e0ef;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-        
-        /* Settings */
         .settings {
             background: rgba(255,255,255,0.04);
             border-radius: 14px;
-            padding: 14px;
-            margin: 12px 0;
+            padding: 16px;
+            margin: 14px 0;
         }
         .setting-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 12px 0;
+            margin: 14px 0;
         }
-        .setting-label { font-size: 15px; font-weight: 600; }
+        .setting-label { font-size: 16px; font-weight: 600; }
         .slider-wrap { display: flex; align-items: center; gap: 10px; }
-        .slider-val { font-size: 14px; color: #00f5d4; min-width: 40px; text-align: right; }
+        .slider-val { font-size: 15px; color: #00f5d4; min-width: 45px; text-align: right; font-weight: 600; }
         .slider {
             -webkit-appearance: none;
-            width: 140px;
-            height: 6px;
-            border-radius: 3px;
+            width: 150px;
+            height: 8px;
+            border-radius: 4px;
             background: rgba(255,255,255,0.15);
             outline: none;
         }
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background: #e63946;
+            background: #e94560;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(230,57,70,0.5);
+            box-shadow: 0 2px 10px rgba(233,69,96,0.5);
         }
         
-        /* Quick Phrases */
-        .quick-section { margin: 14px 0; }
+        .quick-section { margin: 16px 0; }
         .quick-title {
-            font-size: 16px;
-            margin-bottom: 10px;
+            font-size: 17px;
+            margin-bottom: 12px;
             color: #ffd166;
             font-weight: 700;
         }
         .phrase-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 10px;
         }
         .phrase-btn {
-            padding: 12px 8px;
+            padding: 14px 10px;
             border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 12px;
+            border-radius: 14px;
             background: rgba(255,255,255,0.05);
             color: #fff;
-            font-size: 15px;
+            font-size: 17px;
             cursor: pointer;
             transition: all 0.15s;
             text-align: center;
             -webkit-appearance: none;
+            font-weight: 500;
         }
         .phrase-btn:active {
-            background: rgba(230,57,70,0.3);
-            border-color: #e63946;
+            background: rgba(233,69,96,0.3);
+            border-color: #e94560;
             transform: scale(0.97);
         }
         
-        /* Info Box */
         .info-box {
-            background: rgba(0,180,216,0.1);
-            border: 1px solid rgba(0,180,216,0.25);
-            border-radius: 12px;
-            padding: 12px;
-            margin: 10px 0;
-            font-size: 13px;
+            background: rgba(0,180,216,0.08);
+            border: 1px solid rgba(0,180,216,0.2);
+            border-radius: 14px;
+            padding: 16px;
+            margin: 14px 0;
+            font-size: 14px;
             color: #90e0ef;
-            line-height: 1.7;
+            line-height: 1.8;
         }
         
         .footer {
             text-align: center;
-            padding: 16px;
-            font-size: 12px;
+            padding: 20px;
+            font-size: 13px;
             color: rgba(255,255,255,0.3);
             line-height: 1.8;
         }
         
         @media (max-width: 400px) {
-            .header h1 { font-size: 22px; }
-            .result-text { font-size: 22px; }
-            .result-text.highlight { font-size: 26px; }
-            .mic-btn { width: 95px; height: 95px; font-size: 38px; }
-            .phrase-btn { font-size: 14px; padding: 10px 6px; }
+            .header h1 { font-size: 24px; }
+            .result-text { font-size: 30px; }
+            .mic-btn { width: 110px; height: 110px; font-size: 44px; }
+            .phrase-btn { font-size: 15px; padding: 12px 8px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🌍 語音翻譯助手</h1>
-            <p>出國旅遊 · 說話即翻譯 · 大字體</p>
+            <h1>🎙️ 語音聽打助手</h1>
+            <p>說話自動變文字 · 大字體 · 老人家專用</p>
         </div>
 
         <!-- 模式切換 -->
         <div class="mode-switch">
-            <button class="mode-btn active" data-mode="zh-en" onclick="switchMode('zh-en')">
-                🇨🇳 中文 → 🇺🇸 英文
+            <button class="mode-btn active" data-mode="zh" onclick="switchMode('zh')">
+                🇨🇳 聽打中文（繁體）
             </button>
-            <button class="mode-btn" data-mode="en-zh" onclick="switchMode('en-zh')">
-                🇺🇸 英文 → 🇨🇳 中文
+            <button class="mode-btn" data-mode="en" onclick="switchMode('en')">
+                🇺🇸 聽打英文
             </button>
         </div>
 
         <!-- 狀態列 -->
-        <div class="status-bar" id="statusBar">⏸️ 點擊麥克風或輸入文字開始</div>
+        <div class="status-bar" id="statusBar">⏸️ 點擊下方紅色麥克風開始說話</div>
 
         <!-- 麥克風 -->
         <div class="mic-section">
@@ -334,28 +329,16 @@
             <div class="mic-label" id="micLabel">點擊開始說話</div>
         </div>
 
-        <!-- 文字輸入 -->
-        <div class="input-section">
-            <div class="input-label">✏️ 文字輸入（語音不可用時使用）</div>
-            <input type="text" class="text-input" id="textInput" 
-                placeholder="請輸入要翻譯的文字..."
-                onkeydown="if(event.key==='Enter')doTranslate()">
-            <button class="translate-btn" onclick="doTranslate()">🔄 翻譯</button>
-        </div>
-
-        <!-- 原文 -->
+        <!-- 聽打結果 -->
         <div class="result-box">
-            <div class="result-label" id="sourceLabel">📢 您說的話</div>
-            <div class="result-text" id="sourceText">...</div>
-        </div>
-
-        <!-- 翻譯結果 -->
-        <div class="result-box">
-            <div class="result-label" id="transLabel">🌐 翻譯結果</div>
-            <div class="result-text highlight" id="transText">...</div>
+            <div class="result-label" id="resultLabel">📝 聽打結果</div>
+            <div class="result-text" id="resultText"></div>
             <div class="action-btns">
-                <button class="action-btn speak-btn" onclick="speakResult()">
-                    🔊 朗讀翻譯
+                <button class="action-btn speak-btn" onclick="speakText()">
+                    🔊 朗讀文字
+                </button>
+                <button class="action-btn copy-btn" onclick="copyText()">
+                    📋 複製文字
                 </button>
                 <button class="action-btn clear-btn" onclick="clearAll()">
                     🗑️ 清除
@@ -363,17 +346,26 @@
             </div>
         </div>
 
+        <!-- 文字輸入 -->
+        <div class="input-section">
+            <div class="input-label">✏️ 手動輸入文字（語音不可用時使用）</div>
+            <input type="text" class="text-input" id="textInput" 
+                placeholder="請在此輸入文字..."
+                onkeydown="if(event.key==='Enter')addText()">
+            <button class="add-btn" onclick="addText()">➕ 加入顯示區</button>
+        </div>
+
         <!-- 設定 -->
         <div class="settings">
             <div class="setting-row">
-                <span class="setting-label">🔊 音量</span>
+                <span class="setting-label">🔊 朗讀音量</span>
                 <div class="slider-wrap">
                     <input type="range" class="slider" id="volSlider" min="0" max="100" value="100" oninput="updateVol(this.value)">
                     <span class="slider-val" id="volVal">100%</span>
                 </div>
             </div>
             <div class="setting-row">
-                <span class="setting-label">⚡ 語速</span>
+                <span class="setting-label">⚡ 朗讀語速</span>
                 <div class="slider-wrap">
                     <input type="range" class="slider" id="rateSlider" min="5" max="15" value="10" oninput="updateRate(this.value)">
                     <span class="slider-val" id="rateVal">正常</span>
@@ -383,301 +375,60 @@
 
         <!-- 常用短語 -->
         <div class="quick-section">
-            <div class="quick-title">📌 常用旅遊短語（點擊直接翻譯+朗讀）</div>
+            <div class="quick-title" id="quickTitle">📌 常用中文短語（點擊直接顯示+朗讀）</div>
             <div class="phrase-grid" id="phraseGrid"></div>
         </div>
 
         <!-- 使用說明 -->
         <div class="info-box">
             <strong>💡 使用說明：</strong><br>
-            ① 選擇翻譯方向（中文↔英文）<br>
-            ② 點擊紅色麥克風說話，或打字輸入<br>
-            ③ 點「🔊 朗讀翻譯」大聲播放<br>
-            ④ 點常用短語可快速翻譯常用句子<br><br>
-            <strong>⚠️ 注意：</strong>iPhone 語音需 HTTPS 網站，文字輸入與朗讀不受限制。
+            ① 選擇「聽打中文」或「聽打英文」模式<br>
+            ② 點擊紅色大麥克風按鈕開始說話<br>
+            ③ 說的話會自動變成文字顯示在大字區<br>
+            ④ 點「🔊 朗讀文字」讓手機大聲讀出來<br>
+            ⑤ 點「📋 複製文字」可複製給別人看<br><br>
+            <strong>⚠️ 注意：</strong>語音聽寫需要網路連線。iPhone 需透過 HTTPS 網站才能使用麥克風，若不行請使用「手動輸入」。
         </div>
 
         <div class="footer">
-            語音辨識需 HTTPS + 麥克風權限<br>
-            文字輸入與語音朗讀功能不受此限
+            純粹語音聽打 · 無翻譯功能<br>
+            語音聽寫由瀏覽器內建引擎處理
         </div>
     </div>
 
     <script>
-        // ===================== 詞典 =====================
-        const dict = {
-            "你好": "Hello",
-            "嗨": "Hi",
-            "謝謝": "Thank you",
-            "謝謝你": "Thank you very much",
-            "非常感謝": "Thank you so much",
-            "對不起": "Sorry",
-            "抱歉": "Sorry",
-            "沒關係": "It's okay",
-            "沒問題": "No problem",
-            "請問": "Excuse me",
-            "不好意思": "Excuse me",
-            "多少錢": "How much is this?",
-            "這個多少錢": "How much is this?",
-            "太貴了": "It's too expensive",
-            "可以便宜一點嗎": "Can you make it cheaper?",
-            "廁所在哪裡": "Where is the restroom?",
-            "廁所在哪": "Where is the restroom?",
-            "洗手間在哪": "Where is the restroom?",
-            "我要這個": "I want this",
-            "我要那個": "I want that",
-            "給我這個": "Give me this",
-            "我不需要": "I don't need it",
-            "不用了": "No, thanks",
-            "我迷路了": "I'm lost",
-            "請幫助我": "Please help me",
-            "請幫我": "Please help me",
-            "救命": "Help!",
-            "我要去機場": "I want to go to the airport",
-            "我要去醫院": "I want to go to the hospital",
-            "我生病了": "I'm sick",
-            "我不舒服": "I don't feel well",
-            "我頭痛": "I have a headache",
-            "我肚子痛": "I have a stomachache",
-            "這是什麼": "What is this?",
-            "我不明白": "I don't understand",
-            "我聽不懂": "I don't understand",
-            "請說慢一點": "Please speak slowly",
-            "請再說一遍": "Please say it again",
-            "請寫下來": "Please write it down",
-            "再見": "Goodbye",
-            "掰掰": "Bye bye",
-            "早安": "Good morning",
-            "晚安": "Good night",
-            "午安": "Good afternoon",
-            "我喜歡這個": "I like this",
-            "我不喜歡": "I don't like it",
-            "有水嗎": "Do you have water?",
-            "我要水": "I want water",
-            "有菜單嗎": "Do you have a menu?",
-            "我要菜單": "I want a menu",
-            "我要買單": "Check, please",
-            "買單": "Check, please",
-            "結帳": "Check, please",
-            "這裡可以拍照嗎": "Can I take photos here?",
-            "附近有餐廳嗎": "Are there restaurants nearby?",
-            "附近有地鐵站嗎": "Is there a subway station nearby?",
-            "附近有公車站嗎": "Is there a bus stop nearby?",
-            "我要打電話": "I need to make a phone call",
-            "我的手機沒電了": "My phone is out of battery",
-            "有充電器嗎": "Do you have a charger?",
-            "這個有折扣嗎": "Is there a discount on this?",
-            "可以刷卡嗎": "Can I pay by card?",
-            "可以付現金嗎": "Can I pay in cash?",
-            "我只收現金": "I only have cash",
-            "我要退貨": "I want to return this",
-            "這個尺寸不對": "This size doesn't fit",
-            "有更大的嗎": "Do you have a larger size?",
-            "有更小的嗎": "Do you have a smaller size?",
-            "我可以試穿嗎": "Can I try this on?",
-            "這是免費的嗎": "Is this free?",
-            "我需要一張地圖": "I need a map",
-            "這裡有WiFi嗎": "Is there WiFi here?",
-            "WiFi密碼是什麼": "What is the WiFi password?",
-            "密碼是什麼": "What is the password?",
-            "我住在這家酒店": "I'm staying at this hotel",
-            "我的房間號碼是": "My room number is",
-            "我要退房": "I want to check out",
-            "我要寄放行李": "I want to store my luggage",
-            "計程車": "Taxi",
-            "公車站": "Bus stop",
-            "火車站": "Train station",
-            "機場": "Airport",
-            "醫院": "Hospital",
-            "藥局": "Pharmacy",
-            "警察局": "Police station",
-            "大使館": "Embassy",
-            "銀行": "Bank",
-            "超市": "Supermarket",
-            "餐廳": "Restaurant",
-            "咖啡廳": "Coffee shop",
-            "博物館": "Museum",
-            "公園": "Park",
-            "海灘": "Beach",
-            "山": "Mountain",
-            "今天": "Today",
-            "明天": "Tomorrow",
-            "昨天": "Yesterday",
-            "現在": "Now",
-            "稍後": "Later",
-            "早上": "Morning",
-            "下午": "Afternoon",
-            "晚上": "Evening",
-            "一": "One",
-            "二": "Two",
-            "三": "Three",
-            "四": "Four",
-            "五": "Five",
-            "六": "Six",
-            "七": "Seven",
-            "八": "Eight",
-            "九": "Nine",
-            "十": "Ten",
-            "一百": "One hundred",
-            "一千": "One thousand",
-            "我餓了": "I'm hungry",
-            "我渴了": "I'm thirsty",
-            "我累了": "I'm tired",
-            "我想睡覺": "I want to sleep",
-            "這裡很冷": "It's cold here",
-            "這裡很熱": "It's hot here",
-            "我喜歡這個國家": "I like this country",
-            "風景很美": "The scenery is beautiful",
-            "食物很好吃": "The food is delicious",
-            "很好吃": "It's delicious",
-            "危險": "Danger!",
-            "叫救護車": "Call an ambulance",
-            "叫警察": "Call the police",
-            "著火了": "Fire!",
-            "我受傷了": "I'm injured",
-            "我對花生過敏": "I'm allergic to peanuts",
-            "我對海鮮過敏": "I'm allergic to seafood",
-            "我不吃辣": "I don't eat spicy food",
-            "我不喝酒": "I don't drink alcohol",
-            "我是素食者": "I'm vegetarian",
-            "左轉": "Turn left",
-            "右轉": "Turn right",
-            "直走": "Go straight",
-            "停": "Stop",
-            "等一下": "Wait a moment",
-            "快一點": "Hurry up",
-            "慢一點": "Slow down",
-            "前面": "In front",
-            "後面": "Behind",
-            "上面": "Above",
-            "下面": "Below",
-            "附近": "Nearby",
-            "遠": "Far",
-            "近": "Close",
-            "大": "Big",
-            "小": "Small",
-            "好": "Good",
-            "壞": "Bad",
-            "熱": "Hot",
-            "冷": "Cold",
-            "開": "Open",
-            "關": "Close",
-            "進來": "Come in",
-            "出去": "Go out",
-            "上車": "Get in",
-            "下車": "Get off",
-            "小心": "Be careful",
-            "恭喜": "Congratulations",
-            "新年快樂": "Happy New Year",
-            "生日快樂": "Happy Birthday",
-            "聖誕快樂": "Merry Christmas",
-            "歡迎": "Welcome",
-            "不客氣": "You're welcome",
-            "是的": "Yes",
-            "不是": "No",
-            "也許": "Maybe",
-            "當然": "Of course",
-            "我不知道": "I don't know",
-            "我同意": "I agree",
-            "我不同意": "I disagree",
-            "我愛你": "I love you",
-            "我想念你": "I miss you",
-            "很高興認識你": "Nice to meet you",
-            "你叫什麼名字": "What's your name?",
-            "我叫": "My name is",
-            "我來自": "I'm from",
-            "中國": "China",
-            "台灣": "Taiwan",
-            "香港": "Hong Kong",
-            "美國": "America",
-            "英國": "UK",
-            "日本": "Japan",
-            "韓國": "Korea",
-            "法國": "France",
-            "德國": "Germany",
-            "義大利": "Italy",
-            "西班牙": "Spain",
-            "澳大利亞": "Australia",
-            "加拿大": "Canada",
-            "新加坡": "Singapore",
-            "泰國": "Thailand",
-            "馬來西亞": "Malaysia",
-            "菲律賓": "Philippines",
-            "印尼": "Indonesia",
-            "越南": "Vietnam",
-            "印度": "India",
-            "俄羅斯": "Russia",
-            "巴西": "Brazil",
-            "墨西哥": "Mexico",
-            "埃及": "Egypt",
-            "南非": "South Africa",
-            "土耳其": "Turkey",
-            "希臘": "Greece",
-            "荷蘭": "Netherlands",
-            "瑞士": "Switzerland",
-            "瑞典": "Sweden",
-            "挪威": "Norway",
-            "芬蘭": "Finland",
-            "冰島": "Iceland",
-            "紐西蘭": "New Zealand",
-            "阿根廷": "Argentina",
-            "智利": "Chile",
-            "摩洛哥": "Morocco",
-            "阿拉伯聯合大公���": "UAE",
-            "杜拜": "Dubai",
-            "沙烏地阿拉伯": "Saudi Arabia",
-            "以色列": "Israel",
-            "約旦": "Jordan",
-            "科威特": "Kuwait",
-            "卡達": "Qatar",
-            "巴基斯坦": "Pakistan",
-            "孟加拉": "Bangladesh",
-            "斯里蘭卡": "Sri Lanka",
-            "尼泊爾": "Nepal",
-            "緬甸": "Myanmar",
-            "寮國": "Laos",
-            "柬埔寨": "Cambodia",
-            "汶萊": "Brunei",
-            "蒙古": "Mongolia",
-            "烏克蘭": "Ukraine",
-            "波蘭": "Poland",
-            "捷克": "Czech Republic",
-            "匈牙利": "Hungary",
-            "葡萄牙": "Portugal",
-            "愛爾蘭": "Ireland",
-            "蘇格蘭": "Scotland",
-            "盧森堡": "Luxembourg",
-            "摩納哥": "Monaco",
-            "馬爾他": "Malta",
-            "賽普勒斯": "Cyprus"
-        };
-
+        // ===================== 常用短語 =====================
+        const zhPhrases = [
+            "你好", "謝謝", "對不起", "請問", "多少錢",
+            "廁所在哪裡", "我要這個", "請幫助我", "我要去機場",
+            "我生病了", "我不明白", "請說慢一點", "再見",
+            "早安", "我要買單", "這裡可以拍照嗎", "我迷路了",
+            "附近有餐廳嗎", "可以刷卡嗎", "這裡有WiFi嗎",
+            "我的手機沒電了", "有充電器嗎", "我要退房",
+            "計程車", "醫院", "警察局", "藥局", "救命",
+            "我餓了", "我渴了", "我累了", "左轉", "右轉", "直走"
+        ];
         const enPhrases = [
             "Hello", "Thank you", "Sorry", "Excuse me", "How much is this?",
             "Where is the restroom?", "I want this", "Please help me",
-            "I want to go to the airport", "Goodbye", "Good morning",
+            "I want to go to the airport", "I'm sick", "I don't understand",
+            "Please speak slowly", "Goodbye", "Good morning",
             "Check, please", "Can I take photos here?", "I'm lost",
-            "I don't understand", "Please speak slowly", "Do you have water?",
-            "Do you have a menu?", "Can I pay by card?", "Is there WiFi here?",
-            "What is the WiFi password?", "I need a map", "Taxi",
-            "Hospital", "Police station", "I'm sick", "Pharmacy",
-            "Help!", "Call an ambulance", "Call the police", "Fire!",
-            "I'm hungry", "I'm thirsty", "I'm tired", "Turn left",
-            "Turn right", "Go straight", "Stop", "Wait a moment",
-            "Nice to meet you", "What's your name?", "My name is",
-            "I'm from China", "I like this country", "The food is delicious",
-            "It's too expensive", "Do you have a discount?", "Can I try this on?",
-            "This size doesn't fit", "I want to return this", "I'm vegetarian",
-            "I don't eat spicy food", "I'm allergic to peanuts", "I'm allergic to seafood"
+            "Are there restaurants nearby?", "Can I pay by card?",
+            "Is there WiFi here?", "My phone is out of battery",
+            "Do you have a charger?", "I want to check out",
+            "Taxi", "Hospital", "Police station", "Pharmacy", "Help!",
+            "I'm hungry", "I'm thirsty", "I'm tired", "Turn left", "Turn right", "Go straight"
         ];
 
         // ===================== 狀態 =====================
-        let mode = 'zh-en';
+        let mode = 'zh';
         let listening = false;
         let recog = null;
         let vol = 1.0;
         let rate = 1.0;
         let speechOK = false;
+        let finalText = '';
 
         // ===================== 初始化 =====================
         function init() {
@@ -691,7 +442,7 @@
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
             speechOK = !!SR;
             if (!speechOK) {
-                setStatus('⚠️ 瀏覽器不支援語音，請使用文字輸入', 'error');
+                setStatus('⚠️ 瀏覽器不支援語音聽寫，請使用手動輸入', 'error');
                 document.getElementById('micBtn').style.opacity = '0.4';
             }
         }
@@ -702,7 +453,7 @@
             el.className = 'status-bar' + (type ? ' ' + type : '');
         }
 
-        // ===================== 語音辨識 =====================
+        // ===================== 語音聽寫 =====================
         function initRecog() {
             if (!speechOK) return;
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -713,36 +464,36 @@
             recog.onstart = () => {
                 listening = true;
                 document.getElementById('micBtn').classList.add('listening');
-                document.getElementById('micLabel').textContent = '🔴 正在聆聽...';
-                setStatus('🎙️ 請說話...');
+                document.getElementById('micLabel').textContent = '🔴 正在聽寫...';
+                setStatus('🎙️ 請說話，我會幫您打成文字', 'listening');
             };
 
             recog.onresult = (e) => {
-                let final = '', interim = '';
+                let interim = '';
                 for (let i = e.resultIndex; i < e.results.length; i++) {
                     const t = e.results[i][0].transcript;
-                    if (e.results[i].isFinal) final += t;
-                    else interim += t;
+                    if (e.results[i].isFinal) {
+                        finalText += t;
+                    } else {
+                        interim += t;
+                    }
                 }
-                const txt = final || interim;
-                if (txt) {
-                    document.getElementById('sourceText').textContent = txt;
-                    if (final) translate(final);
-                }
+                const display = finalText + (interim ? ' ' + interim : '');
+                document.getElementById('resultText').textContent = display;
             };
 
             recog.onerror = (e) => {
                 console.log('Speech error:', e.error);
                 if (e.error === 'service-not-allowed' || e.error === 'not-allowed') {
-                    setStatus('❌ 語音被瀏覽器封鎖，請改用文字輸入', 'error');
+                    setStatus('❌ 麥克風被瀏覽器封鎖，請使用手動輸入', 'error');
                     speechOK = false;
                     document.getElementById('micBtn').style.opacity = '0.4';
                 } else if (e.error === 'no-speech') {
-                    setStatus('沒有偵測到語音');
+                    setStatus('沒有偵測到語音，請再試一次');
                 } else if (e.error === 'network') {
-                    setStatus('網路問題，請檢查連線', 'error');
+                    setStatus('網路連線問題，請檢查網路', 'error');
                 } else if (e.error !== 'aborted') {
-                    setStatus('語音錯誤: ' + e.error + '，請用文字輸入', 'error');
+                    setStatus('語音聽寫錯誤: ' + e.error + '，請用手動輸入', 'error');
                 }
                 stopMic();
             };
@@ -758,7 +509,7 @@
 
         function toggleMic() {
             if (!speechOK) {
-                setStatus('❌ 語音不可用，請使用下方文字輸入', 'error');
+                setStatus('❌ 語音聽寫不可用，請使用手動輸入', 'error');
                 return;
             }
             if (listening) {
@@ -770,7 +521,7 @@
 
         function startMic() {
             try {
-                recog.lang = mode === 'zh-en' ? 'zh-TW' : 'en-US';
+                recog.lang = mode === 'zh' ? 'zh-TW' : 'en-US';
                 recog.start();
             } catch (e) {
                 setStatus('無法啟動麥克風: ' + e.message, 'error');
@@ -782,88 +533,42 @@
             try { recog.stop(); } catch(e) {}
             document.getElementById('micBtn').classList.remove('listening');
             document.getElementById('micLabel').textContent = '點擊開始說話';
+            setStatus('✅ 聽打完成', 'success');
+            setTimeout(() => setStatus('⏸️ 點擊麥克風繼續說話'), 2500);
         }
 
-        // ===================== 文字翻譯 =====================
-        function doTranslate() {
+        // ===================== 手動輸入 =====================
+        function addText() {
             const input = document.getElementById('textInput').value.trim();
             if (!input) {
                 setStatus('⚠️ 請先輸入文字', 'error');
                 return;
             }
-            document.getElementById('sourceText').textContent = input;
-            translate(input);
+            finalText += (finalText ? ' ' : '') + input;
+            document.getElementById('resultText').textContent = finalText;
             document.getElementById('textInput').value = '';
-        }
-
-        function translate(text) {
-            setStatus('🔄 翻譯中...');
-            let result = '';
-
-            if (mode === 'zh-en') {
-                // 中文→英文
-                const clean = text.replace(/[。，！？、；：""''（）【】]/g, ' ').trim();
-                const segs = clean.split(/\s+/);
-                const out = segs.map(s => {
-                    if (dict[s]) return dict[s];
-                    // 部分匹配
-                    for (const [cn, en] of Object.entries(dict)) {
-                        if (s.includes(cn)) return en;
-                    }
-                    return s;
-                });
-                result = out.join(' ');
-                if (result === clean) {
-                    result = '【詞彙庫暫無完全匹配】\n\n您說的是: "' + text + '"\n\n建議使用更簡單的詞句，或點選下方常用短語';
-                }
-            } else {
-                // 英文→中文
-                const clean = text.toLowerCase().replace(/[.,!?;:"]/g, ' ').trim();
-                const segs = clean.split(/\s+/);
-                const out = [];
-                for (const s of segs) {
-                    let found = false;
-                    for (const [cn, en] of Object.entries(dict)) {
-                        if (en.toLowerCase() === s) { out.push(cn); found = true; break; }
-                    }
-                    if (!found) {
-                        for (const [cn, en] of Object.entries(dict)) {
-                            if (en.toLowerCase().includes(s)) { out.push(cn); found = true; break; }
-                        }
-                    }
-                    if (!found) out.push(s);
-                }
-                result = out.join('');
-                if (!result || result.toLowerCase() === clean) {
-                    result = '【詞彙庫暫無完全匹配】\n\nYou said: "' + text + '"\n\n建議使用更簡單的詞句';
-                }
-            }
-
-            document.getElementById('transText').textContent = result;
-            setStatus('✅ 翻譯完成', 'success');
-            setTimeout(() => setStatus('⏸️ 準備就緒'), 2500);
+            setStatus('✅ 文字已加入', 'success');
+            setTimeout(() => setStatus('⏸️ 準備就緒'), 1500);
         }
 
         // ===================== 朗讀 =====================
-        function speakResult() {
-            const text = document.getElementById('transText').textContent;
-            if (!text || text === '...') {
-                setStatus('⚠️ 沒有內容可朗讀', 'error');
+        function speakText() {
+            const text = document.getElementById('resultText').textContent;
+            if (!text) {
+                setStatus('⚠️ 沒有文字可朗讀', 'error');
                 return;
             }
-            const clean = text.replace(/【.*?】/g, '').replace(/您說的是:.*/g, '').replace(/You said:.*/g, '').replace(/建議.*/g, '').trim();
-            if (!clean) return;
 
             window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(clean);
-            u.lang = mode === 'zh-en' ? 'en-US' : 'zh-TW';
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = mode === 'zh' ? 'zh-TW' : 'en-US';
             u.volume = vol;
             u.rate = rate;
             u.pitch = 1;
 
             const voices = window.speechSynthesis.getVoices();
             if (voices.length) {
-                const tl = mode === 'zh-en' ? 'en' : 'zh';
+                const tl = mode === 'zh' ? 'zh' : 'en';
                 const v = voices.find(vc => vc.lang.toLowerCase().startsWith(tl));
                 if (v) u.voice = v;
             }
@@ -875,26 +580,42 @@
             window.speechSynthesis.speak(u);
         }
 
+        // ===================== 複製 =====================
+        function copyText() {
+            const text = document.getElementById('resultText').textContent;
+            if (!text) {
+                setStatus('⚠️ 沒有文字可複製', 'error');
+                return;
+            }
+            navigator.clipboard.writeText(text).then(() => {
+                setStatus('✅ 文字已複製到剪貼簿', 'success');
+                setTimeout(() => setStatus('⏸️ 準備就緒'), 2000);
+            }).catch(() => {
+                setStatus('❌ 複製失敗，請手動選取複製', 'error');
+            });
+        }
+
         // ===================== 模式切換 =====================
         function switchMode(newMode) {
-            mode = newMode;
             if (listening) stopMic();
+            mode = newMode;
+            finalText = '';
+            document.getElementById('resultText').textContent = '';
             updateUI();
-            clearAll();
         }
 
         function updateUI() {
             document.querySelectorAll('.mode-btn').forEach(b => {
                 b.classList.toggle('active', b.dataset.mode === mode);
             });
-            if (mode === 'zh-en') {
-                document.getElementById('sourceLabel').textContent = '📢 您說的話（中文）';
-                document.getElementById('transLabel').textContent = '🌐 翻譯結果（英文）';
-                document.getElementById('textInput').placeholder = '請輸入中文...';
+            if (mode === 'zh') {
+                document.getElementById('resultLabel').textContent = '📝 聽打結果（繁體中文）';
+                document.getElementById('textInput').placeholder = '請輸入繁體中文...';
+                document.getElementById('quickTitle').textContent = '📌 常用中文短語（點擊直接顯示+朗讀）';
             } else {
-                document.getElementById('sourceLabel').textContent = '📢 You said (English)';
-                document.getElementById('transLabel').textContent = '🌐 Translation (Chinese)';
+                document.getElementById('resultLabel').textContent = '📝 Transcription (English)';
                 document.getElementById('textInput').placeholder = 'Type English here...';
+                document.getElementById('quickTitle').textContent = '📌 Common English Phrases (tap to show + speak)';
             }
             renderPhrases();
         }
@@ -903,29 +624,16 @@
         function renderPhrases() {
             const grid = document.getElementById('phraseGrid');
             grid.innerHTML = '';
-            const list = mode === 'zh-en'
-                ? Object.entries(dict).slice(0, 30)
-                : enPhrases.slice(0, 30).map(p => [p, p]);
+            const list = mode === 'zh' ? zhPhrases : enPhrases;
 
-            list.forEach(([txt, trans]) => {
+            list.forEach(txt => {
                 const btn = document.createElement('button');
                 btn.className = 'phrase-btn';
                 btn.textContent = txt;
                 btn.onclick = () => {
-                    document.getElementById('sourceText').textContent = txt;
-                    if (mode === 'zh-en') {
-                        document.getElementById('transText').textContent = trans;
-                    } else {
-                        let found = false;
-                        for (const [cn, en] of Object.entries(dict)) {
-                            if (en === txt) {
-                                document.getElementById('transText').textContent = cn;
-                                found = true; break;
-                            }
-                        }
-                        if (!found) document.getElementById('transText').textContent = txt;
-                    }
-                    setStatus('✅ 已選擇短語', 'success');
+                    finalText += (finalText ? ' ' : '') + txt;
+                    document.getElementById('resultText').textContent = finalText;
+                    setStatus('✅ 短語已加入', 'success');
                     setTimeout(() => setStatus('⏸️ 準備就緒'), 1500);
                 };
                 grid.appendChild(btn);
@@ -945,11 +653,11 @@
 
         // ===================== 清除 =====================
         function clearAll() {
-            document.getElementById('sourceText').textContent = '...';
-            document.getElementById('transText').textContent = '...';
+            finalText = '';
+            document.getElementById('resultText').textContent = '';
             document.getElementById('textInput').value = '';
             setStatus('🗑️ 已清除');
-            setTimeout(() => setStatus('⏸️ 準備就緒'), 1500);
+            setTimeout(() => setStatus('⏸️ 點擊麥克風開始說話'), 1500);
         }
 
         // 預載語音
