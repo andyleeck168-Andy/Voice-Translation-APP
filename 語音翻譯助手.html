@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>語音翻譯助手 - 出國旅遊版</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .container { max-width: 480px; margin: 0 auto; padding: 16px; }
+        .header { text-align: center; padding: 20px 0; }
+        .header h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+        .header p { font-size: 16px; color: #a0c4ff; }
+        .mode-switch {
+            display: flex;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50px;
+            padding: 4px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            background: transparent;
+            color: #a0c4ff;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .mode-btn.active {
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(233,69,96,0.4);
+        }
+        .mic-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .mic-btn {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #e94560, #c0392b);
+            color: #fff;
+            font-size: 56px;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(233,69,96,0.5);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mic-btn:active { transform: scale(0.95); }
+        .mic-btn.listening {
+            animation: pulse 1.5s infinite;
+            background: linear-gradient(135deg, #ff6b6b, #e94560);
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(233,69,96,0.7); }
+            70% { box-shadow: 0 0 0 30px rgba(233,69,96,0); }
+            100% { box-shadow: 0 0 0 0 rgba(233,69,96,0); }
+        }
+        .mic-label {
+            margin-top: 16px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffd700;
+        }
+        .status {
+            text-align: center;
+            font-size: 18px;
+            color: #a0c4ff;
+            margin: 10px 0;
+            min-height: 28px;
+        }
+        .result-box {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 24px;
+            margin: 20px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .result-label {
+            font-size: 14px;
+            color: #a0c4ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+        .result-text {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.6;
+            color: #fff;
+            min-height: 50px;
+            word-break: break-word;
+        }
+        .result-text.small { font-size: 22px; }
+        .action-btns {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .speak-btn {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(0,184,148,0.3);
+        }
+        .speak-btn:active { transform: scale(0.97); }
+        .clear-btn {
+            background: rgba(255,255,255,0.1);
+            color: #a0c4ff;
+        }
+        .settings {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 16px 0;
+        }
+        .setting-label { font-size: 18px; font-weight: 600; }
+        .slider {
+            -webkit-appearance: none;
+            width: 60%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.2);
+            outline: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #e94560;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(233,69,96,0.5);
+        }
+        .quick-phrases {
+            margin: 20px 0;
+        }
+        .quick-phrases h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: #ffd700;
+        }
+        .phrase-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .phrase-btn {
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .phrase-btn:active {
+            background: rgba(233,69,96,0.3);
+            border-color: #e94560;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.4);
+        }
+        .error-msg {
+            background: rgba(231,76,60,0.2);
+            border: 1px solid rgba(231,76,60,0.5);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            font-size: 16px;
+            color: #ff9f9f;
+            display: none;
+        }
+        .error-msg.show { display: block; }
+        @media (max-width: 400px) {
+            .header h1 { font-size: 26px; }
+            .result-text { font-size: 24px; }
+            .mic-btn { width: 120px; height: 120px; font-size: 48px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 語音翻譯助手</h1>
+            <p>出國旅遊必備 · 說話即翻譯</p>
+        </div>
+
+        <div class="mode-switch">
+            <button class="mode-btn active" data-mode="zh-en" onclick="switchMode('zh-en')">
+                🇨🇳 中文 → 🇺🇸 英文
+            </button>
+            <button class="mode-btn" data-mode="en-zh" onclick="switchMode('en-zh')">
+                🇺🇸 英文 → 🇨🇳 中文
+            </button>
+        </div>
+
+        <div class="mic-section">
+            <button class="mic-btn" id="micBtn" onclick="toggleListening()">🎙️</button>
+            <div class="mic-label" id="micLabel">點擊開始說話</div>
+        </div>
+
+        <div class="status" id="status">準備就緒</div>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        <div class="result-box">
+            <div class="result-label" id="inputLabel">您說的話（中文）</div>
+            <div class="result-text" id="inputText">...</div>
+        </div>
+
+        <div class="result-box">
+            <div class="result-label" id="outputLabel">翻譯結果（英文）</div>
+            <div class="result-text" id="outputText">...</div>
+            <div class="action-btns">
+                <button class="action-btn speak-btn" onclick="speakTranslation()">
+                    🔊 朗讀翻譯
+                </button>
+                <button class="action-btn clear-btn" onclick="clearAll()">
+                    🗑️ 清除
+                </button>
+            </div>
+        </div>
+
+        <div class="settings">
+            <div class="setting-row">
+                <span class="setting-label">🔊 音量</span>
+                <input type="range" class="slider" id="volume" min="0" max="1" step="0.1" value="1">
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">⚡ 語速</span>
+                <input type="range" class="slider" id="rate" min="0.5" max="1.5" step="0.1" value="1">
+            </div>
+        </div>
+
+        <div class="quick-phrases">
+            <h3>📌 常用旅遊短語（點擊直接朗讀）</h3>
+            <div class="phrase-grid" id="phraseGrid"></div>
+        </div>
+
+        <div class="footer">
+            請使用 Chrome / Edge / Safari 瀏覽器<br>
+            首次使用請允許麥克風權限
+        </div>
+    </div>
+
+    <script>
+        // ========== 旅遊常用語詞典 ==========
+        const dictionary = {
+            "你好": "Hello",
+            "謝謝": "Thank you",
+            "對不起": "Sorry",
+            "沒關係": "It's okay",
+            "請問": "Excuse me",
+            "多少錢": "How much is this?",
+            "太貴了": "It's too expensive",
+            "廁所在哪裡": "Where is the restroom?",
+            "我要這個": "I want this",
+            "我不需要": "I don't need it",
+            "我迷路了": "I'm lost",
+            "請幫助我": "Please help me",
+            "我要去機場": "I want to go to the airport",
+            "我要去醫院": "I want to go to the hospital",
+            "我生病了": "I'm sick",
+            "這是什麼": "What is this?",
+            "我不明白": "I don't understand",
+            "請說慢一點": "Please speak slowly",
+            "再見": "Goodbye",
+            "早安": "Good morning",
+            "晚安": "Good night",
+            "我喜歡這個": "I like this",
+            "我不喜歡": "I don't like it",
+            "有水嗎": "Do you have water?",
+            "有菜單嗎": "Do you have a menu?",
+            "我要買單": "Check, please",
+            "這裡可以拍照嗎": "Can I take photos here?",
+            "附近有餐廳嗎": "Are there restaurants nearby?",
+            "附近有地鐵站嗎": "Is there a subway station nearby?",
+            "我要打電話": "I need to make a phone call",
+            "我的手機沒電了": "My phone is out of battery",
+            "有充電器嗎": "Do you have a charger?",
+            "這個有折扣嗎": "Is there a discount on this?",
+            "可以刷卡嗎": "Can I pay by card?",
+            "我只收現金": "I only have cash",
+            "我要退貨": "I want to return this",
+            "這個尺寸不對": "This size doesn't fit",
+            "有更大的嗎": "Do you have a larger size?",
+            "有更小的嗎": "Do you have a smaller size?",
+            "我可以試穿嗎": "Can I try this on?",
+            "這是免費的嗎": "Is this free?",
+            "我需要一張地圖": "I need a map",
+            "這裡有WiFi嗎": "Is there WiFi here?",
+            "WiFi密碼是什麼": "What is the WiFi password?",
+            "我住在這家酒店": "I'm staying at this hotel",
+            "我的房間號碼是": "My room number is",
+            "我要退房": "I want to check out",
+            "我要寄放行李": "I want to store my luggage",
+            "計程車": "Taxi",
+            "公車站": "Bus stop",
+            "火車站": "Train station",
+            "機場": "Airport",
+            "醫院": "Hospital",
+            "藥局": "Pharmacy",
+            "警察局": "Police station",
+            "大使館": "Embassy",
+            "銀行": "Bank",
+            "超市": "Supermarket",
+            "餐廳": "Restaurant",
+            "咖啡廳": "Coffee shop",
+            "博物館": "Museum",
+            "公園": "Park",
+            "海灘": "Beach",
+            "山": "Mountain",
+            "今天": "Today",
+            "明天": "Tomorrow",
+            "昨天": "Yesterday",
+            "現在": "Now",
+            "稍後": "Later",
+            "早上": "Morning",
+            "下午": "Afternoon",
+            "晚上": "Evening",
+            "一": "One",
+            "二": "Two",
+            "三": "Three",
+            "四": "Four",
+            "五": "Five",
+            "六": "Six",
+            "七": "Seven",
+            "八": "Eight",
+            "九": "Nine",
+            "十": "Ten",
+            "一百": "One hundred",
+            "一千": "One thousand",
+            "我餓了": "I'm hungry",
+            "我渴了": "I'm thirsty",
+            "我累了": "I'm tired",
+            "我想睡覺": "I want to sleep",
+            "這裡很冷": "It's cold here",
+            "這裡很熱": "It's hot here",
+            "我喜歡這個國家": "I like this country",
+            "風景很美": "The scenery is beautiful",
+            "食物很好吃": "The food is delicious"
+        };
+
+        const enPhrases = [
+            "Hello", "Thank you", "Sorry", "Excuse me", "How much is this?",
+            "Where is the restroom?", "I want this", "Please help me",
+            "I want to go to the airport", "Goodbye", "Good morning",
+            "Check, please", "Can I take photos here?", "I'm lost",
+            "I don't understand", "Please speak slowly", "Do you have water?",
+            "Do you have a menu?", "Can I pay by card?", "Is there WiFi here?",
+            "What is the WiFi password?", "I need a map", "Taxi",
+            "Hospital", "Police station", "I'm sick", "Pharmacy"
+        ];
+
+        // ========== 狀態管理 ==========
+        let currentMode = 'zh-en';
+        let isListening = false;
+        let recognition = null;
+        let finalTranscript = '';
+
+        // ========== 初始化 ==========
+        function init() {
+            initSpeechRecognition();
+            initQuickPhrases();
+            updateModeUI();
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = '⚠️ ' + msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 5000);
+        }
+
+        // ========== 語音辨識 ==========
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showError('您的瀏覽器不支援語音辨識，請使用 Chrome 或 Safari');
+                return;
+            }
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                isListening = true;
+                finalTranscript = '';
+                document.getElementById('micBtn').classList.add('listening');
+                document.getElementById('micLabel').textContent = '🔴 正在聆聽...';
+                document.getElementById('status').textContent = '請說話...';
+            };
+
+            recognition.onresult = (event) => {
+                let interim = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interim += transcript;
+                    }
+                }
+                const displayText = finalTranscript || interim;
+                document.getElementById('inputText').textContent = displayText || '...';
+                if (finalTranscript) {
+                    translate(finalTranscript);
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech error:', event.error);
+                if (event.error === 'not-allowed') {
+                    showError('麥克風權限被拒絕，請在瀏覽器設定中允許麥克風');
+                } else if (event.error === 'no-speech') {
+                    document.getElementById('status').textContent = '沒有偵測到語音，請再試一次';
+                } else if (event.error === 'network') {
+                    showError('網路連線問題，請檢查網路後重試');
+                } else {
+                    showError('語音辨識錯誤: ' + event.error);
+                }
+                stopListening();
+            };
+
+            recognition.onend = () => {
+                if (isListening) {
+                    try { recognition.start(); } catch(e) {}
+                } else {
+                    document.getElementById('micBtn').classList.remove('listening');
+                    document.getElementById('micLabel').textContent = '點擊開始說話';
+                    document.getElementById('status').textContent = '已停止';
+                }
+            };
+        }
+
+        function toggleListening() {
+            if (!recognition) {
+                showError('語音辨識未初始化');
+                return;
+            }
+            if (isListening) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        }
+
+        function startListening() {
+            try {
+                recognition.lang = currentMode === 'zh-en' ? 'zh-TW' : 'en-US';
+                recognition.start();
+            } catch (e) {
+                showError('無法啟動麥克風: ' + e.message);
+            }
+        }
+
+        function stopListening() {
+            isListening = false;
+            try { recognition.stop(); } catch(e) {}
+            document.getElementById('micBtn').classList.remove('listening');
+            document.getElementById('micLabel').textContent = '點擊開始說話';
+        }
+
+        // ========== 翻譯 ==========
+        function translate(text) {
+            if (!text.trim()) return;
+            document.getElementById('status').textContent = '翻譯中...';
+            
+            let translated = '';
+            if (currentMode === 'zh-en') {
+                const clean = text.replace(/[。，！？、；：""''（）【】]/g, ' ').trim();
+                const segments = clean.split(/\s+/);
+                const results = segments.map(seg => {
+                    if (dictionary[seg]) return dictionary[seg];
+                    for (const [cn, en] of Object.entries(dictionary)) {
+                        if (seg.includes(cn)) return en;
+                    }
+                    return seg;
+                });
+                translated = results.join(' ');
+                if (translated === clean) {
+                    translated = '[字��中無此詞彙，建議使用更簡單的詞句] \n\n您說的是: "' + text + '"';
+                }
+            } else {
+                const clean = text.toLowerCase().replace(/[.,!?;:"]/g, ' ').trim();
+                const segments = clean.split(/\s+/);
+                const results = segments.map(seg => {
+                    for (const [cn, en] of Object.entries(dictionary)) {
+                        if (en.toLowerCase() === seg) return cn;
+                    }
+                    for (const [cn, en] of Object.entries(dictionary)) {
+                        if (en.toLowerCase().includes(seg)) return cn;
+                    }
+                    return seg;
+                });
+                translated = results.join('');
+                if (translated.toLowerCase() === clean) {
+                    translated = '[字典中無此詞彙] \n\nYou said: "' + text + '"';
+                }
+            }
+            
+            document.getElementById('outputText').textContent = translated;
+            document.getElementById('status').textContent = '翻譯完成';
+            
+            setTimeout(() => {
+                if (document.getElementById('status').textContent === '翻譯完成') {
+                    document.getElementById('status').textContent = '準備就緒';
+                }
+            }, 2000);
+        }
+
+        // ========== 語音朗讀 ==========
+        function speakTranslation() {
+            const text = document.getElementById('outputText').textContent;
+            if (!text || text === '...') {
+                showError('沒有翻譯內容可朗讀');
+                return;
+            }
+            const cleanText = text.replace(/\[.*?\]/g, '').trim();
+            if (!cleanText) return;
+            
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = currentMode === 'zh-en' ? 'en-US' : 'zh-TW';
+            utterance.volume = parseFloat(document.getElementById('volume').value);
+            utterance.rate = parseFloat(document.getElementById('rate').value);
+            utterance.pitch = 1;
+            
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                const targetLang = currentMode === 'zh-en' ? 'en' : 'zh';
+                const voice = voices.find(v => v.lang.toLowerCase().startsWith(targetLang));
+                if (voice) utterance.voice = voice;
+            }
+            
+            utterance.onstart = () => {
+                document.getElementById('status').textContent = '🔊 正在朗讀...';
+            };
+            utterance.onend = () => {
+                document.getElementById('status').textContent = '朗讀完成';
+            };
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // ========== 模式切換 ==========
+        function switchMode(mode) {
+            currentMode = mode;
+            if (isListening) stopListening();
+            updateModeUI();
+            clearAll();
+        }
+
+        function updateModeUI() {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === currentMode);
+            });
+            if (currentMode === 'zh-en') {
+                document.getElementById('inputLabel').textContent = '您說的話（中文）';
+                document.getElementById('outputLabel').textContent = '翻譯結果（英文）';
+            } else {
+                document.getElementById('inputLabel').textContent = 'You said (English)';
+                document.getElementById('outputLabel').textContent = 'Translation (Chinese)';
+            }
+            initQuickPhrases();
+        }
+
+        // ========== 常用短語 ==========
+        function initQuickPhrases() {
+            const grid = document.getElementById('phraseGrid');
+            grid.innerHTML = '';
+            const phrases = currentMode === 'zh-en' 
+                ? Object.entries(dictionary).slice(0, 20)
+                : enPhrases.slice(0, 20).map(p => [p, p]);
+            
+            phrases.forEach(([text, trans]) => {
+                const btn = document.createElement('button');
+                btn.className = 'phrase-btn';
+                btn.textContent = text;
+                btn.onclick = () => {
+                    document.getElementById('inputText').textContent = text;
+                    if (currentMode === 'zh-en') {
+                        document.getElementById('outputText').textContent = trans;
+                    } else {
+                        for (const [cn, en] of Object.entries(dictionary)) {
+                            if (en === text) {
+                                document.getElementById('outputText').textContent = cn;
+                                return;
+                            }
+                        }
+                        document.getElementById('outputText').textContent = text;
+                    }
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        // ========== 清除 ==========
+        function clearAll() {
+            document.getElementById('inputText').textContent = '...';
+            document.getElementById('outputText').textContent = '...';
+            document.getElementById('status').textContent = '已清除';
+            finalTranscript = '';
+        }
+
+        // 預加載語音
+        window.speechSynthesis.getVoices();
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
+
+        // 啟動
+        init();
+    </script>
+</body>
+</html>
